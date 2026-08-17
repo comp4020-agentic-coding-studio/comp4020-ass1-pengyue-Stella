@@ -1,16 +1,1007 @@
+:root {
+  --ink: #2b2118;
+  --paper: #fbf5e8;
+  --paper-white: #fffdf6;
+  --accent-yellow: #f3cf55;
+  --accent-yellow-dark: #dcae1f;
+  --accent-2: #2f8f83;
+
+  /* Separate from --paper-white on purpose: --paper-white also fills the
+     paper sheet itself and the dialog/limit-prompt backgrounds, which must
+     stay pale and legible even once the scene has gone dark. --stage-bg is
+     only ever used for .world's own background. */
+  --stage-bg: var(--paper-white);
+  --star-opacity: 0;
+
+  /* The folded-paper column's own stroke/fill/shadow colour — separate from
+     --ink because --ink in space mode is a pale near-white body-text tone,
+     not the bright cosmic accent the paper column itself needs to read as a
+     deliberately-restyled object (see [data-theme="space"] below). Equal to
+     --ink here so Phase 1 keeps its existing warm hand-drawn look exactly. */
+  --paper-ink: var(--ink);
+}
+
+/* Two clean visual modes, set on <body data-theme> from the active scene's
+   own `theme` field (see SCENE_THEME in main.ts — the scene data is the one
+   source of truth for which mode is active, not a separately-tuned CSS
+   condition). "everyday" is the default/unset state and keeps the warm
+   hand-drawn look defined in :root above, and now covers the ISS scene too
+   — it's still one concrete human-made object, same register as the
+   buildings and Everest. "space" switches on cleanly the moment the story
+   reaches the half-Earth + Kármán-line scene and holds through the Milky
+   Way — a single binary swap, not a multi-step gradient, so the shift reads
+   as a deliberate mode change rather than a barely-there tint. */
+[data-theme="space"] {
+  --ink: #e9f0ff;
+  --paper: #060911;
+  --paper-white: #101a30;
+  --stage-bg: #04060c;
+  --accent-yellow: #5fe7ff;
+  --accent-yellow-dark: #33c7ee;
+  --accent-2: #b98bff;
+  --star-opacity: 1;
+
+  /* Reuses the same bright cyan already defined as this theme's accent,
+     rather than a new one-off hex value — a bright, high-contrast fill for
+     the paper column specifically, distinct from body-text --ink. */
+  --paper-ink: var(--accent-yellow);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
+  position: relative;
   margin: 0;
-  padding: 2rem;
+  padding: 2.5rem 1.5rem;
   font-family: system-ui, sans-serif;
   line-height: 1.6;
-  color: #1a1a1a;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: radial-gradient(circle at 1px 1px, rgb(43 33 24 / 6%) 1px, transparent 0);
+  background-size: 22px 22px;
+  transition: background-color 900ms ease, color 900ms ease;
+}
+
+/* A subtle CSS-only starfield, hidden in everyday mode and switched on with
+   the rest of the palette in space mode (see --star-opacity above and in
+   [data-theme="space"]). Fixed so it doesn't scroll away from behind the
+   content. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--star-opacity);
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 27% 64%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 41% 32%, #cfe4ff, transparent),
+    radial-gradient(1px 1px at 58% 78%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 73% 22%, #fff, transparent),
+    radial-gradient(1px 1px at 84% 55%, #cfe4ff, transparent),
+    radial-gradient(1.5px 1.5px at 93% 85%, #fff, transparent),
+    radial-gradient(1px 1px at 6% 88%, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 340px 340px;
+  transition: opacity 900ms ease;
 }
 
 main {
-  max-width: 40rem;
+  max-width: 46rem;
   margin: 0 auto;
 }
 
 a {
-  color: #0b5fff;
+  color: var(--accent-2);
+}
+
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  background: var(--ink);
+  color: var(--paper-white);
+  transition: top 150ms ease;
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  margin: -1px;
+  padding: 0;
+}
+
+.kicker {
+  margin: 0 0 0.25rem;
+  color: var(--accent-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.1rem;
+  line-height: 1.15;
+}
+
+.title-flourish {
+  display: block;
+  width: 9rem;
+  height: 0.9rem;
+  margin: 0.3rem 0 1rem;
+}
+
+.doodle-line {
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+
+.intro {
+  max-width: 39rem;
+  font-size: 1.1rem;
+}
+
+/* --- Opening paper picker --------------------------------------------- */
+
+dialog#paper-picker {
+  max-width: 30rem;
+  width: min(90vw, 30rem);
+  padding: 1.75rem;
+  border: 2.5px solid var(--ink);
+  border-radius: 12px 22px 14px 20px;
+  background: var(--paper-white);
+  color: var(--ink);
+}
+
+dialog#paper-picker::backdrop {
+  background: rgb(43 33 24 / 45%);
+}
+
+#picker-heading {
+  margin: 0 0 0.15rem;
+  font-size: 1.3rem;
+}
+
+.picker-sub {
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+}
+
+.preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 0.6rem;
+  border: 2px solid var(--ink);
+  border-radius: 45% 55% 60% 40% / 55% 40% 60% 45%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 150ms ease, scale 100ms ease;
+}
+
+.preset-card:nth-child(2) {
+  rotate: -1deg;
+}
+
+.preset-card:nth-child(3) {
+  rotate: 1deg;
+}
+
+.preset-card:nth-child(4) {
+  rotate: -0.6deg;
+}
+
+.preset-card:hover {
+  background: var(--accent-yellow);
+}
+
+.preset-card:active {
+  scale: 97%;
+}
+
+.preset-card:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.preset-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.preset-shape {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.preset-line {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  opacity: 0.5;
+}
+
+.preset-label {
+  font-weight: 700;
+}
+
+.preset-hint {
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
+
+/* --- Main scene --------------------------------------------------------- */
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.scene-toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.scene-caption {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 1.05rem;
+  font-style: italic;
+  text-align: center;
+  opacity: 0.85;
+  rotate: -0.6deg;
+}
+
+.text-button {
+  padding: 0.2rem 0.4rem;
+  border: none;
+  background: none;
+  color: var(--accent-2);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-style: italic;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.text-button:hover {
+  opacity: 1;
+}
+
+.text-button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* --- The world: one illustrated scene, not a row of widgets ------------- */
+
+.world {
+  position: relative;
+  width: min(100%, 52rem);
+  aspect-ratio: 480 / 340;
+  padding: 1rem;
+  border-radius: 20px;
+  background: var(--stage-bg);
+  transition: background-color 900ms ease;
+}
+
+#world-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The scene-stage is a right-hand gutter box, sized and pinned to the same
+   aspect ratio as the source PNGs (2048x1152), so it has a real height and
+   every child's percentage-based position (the .scene-img layers filling
+   it, and the glow/bubble's --anchor-x/--anchor-y) resolves against the same
+   rectangle. It stops well short of the left edge of .world, which is
+   reserved for the paper's SVG, so the art can never overlap it regardless
+   of which of the four images is active or how the paper's own scale
+   changes.
+
+   The 19% bottom offset below is only a pre-JS fallback. The ground line's
+   real on-screen position is fixed at a percentage of #world-svg's own
+   content-box height (CAMERA_Y / viewBox height — see #camera's transform),
+   which is a different reference box than this element's percentage inset
+   (resolved against .world's padding box) — the two would only ever line up
+   by coincidence. alignGroundBaseline() in main.ts measures the ground
+   line's live screen position and sets this element's `bottom` inline,
+   every render, so every comparison object's bottom (bottom: 0 inside this
+   box) shares that exact same groundY value as the line itself. */
+.scene-stage {
+  position: absolute;
+  inset: auto 1rem 19% auto;
+  width: 62%;
+  aspect-ratio: 2048 / 1152;
+  transform-origin: 100% 100%;
+}
+
+/* Eleven fixed scene illustrations, stacked to fill the stage and crossfaded
+   by opacity — only one is ever visible at a time. object-fit: contain lets
+   the photographic scenes (11.jpg/5.avif/6.webp/7.jpg/8.jpg), which don't
+   share the hand-drawn scenes' 2048x1152 aspect ratio, letterbox instead of
+   stretch. */
+.scene-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  transition: opacity 550ms ease;
+}
+
+.scene-img.is-active {
+  opacity: 1;
+}
+
+/* Scenes 7-13 (the Kármán line through the Milky Way, including the Oort
+   Cloud and Alpha Centauri scenes inserted between Earth-Moon and the Milky
+   Way) are opaque space photography, not transparent-background line art, so
+   multiplying them into the (increasingly dark) stage background would just
+   muddy them. Scenes 5-6 (Everest, ISS) are the same hand-drawn illustration
+   style as 1-4 and keep the default multiply blend. */
+.scene-img[data-scene="scene7"],
+.scene-img[data-scene="scene8"],
+.scene-img[data-scene="scene9"],
+.scene-img[data-scene="scene10"],
+.scene-img[data-scene="scene11"],
+.scene-img[data-scene="scene12"],
+.scene-img[data-scene="scene13"] {
+  mix-blend-mode: normal;
+}
+
+.ground-line {
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.paper-shape[hidden] {
+  display: none;
+}
+
+.paper-fill {
+  fill: url("#paper-layers");
+  stroke: var(--paper-ink);
+  stroke-width: 2.5;
+  filter: url("#sketchy");
+  vector-effect: non-scaling-stroke;
+}
+
+.flat-fill {
+  fill: var(--paper-white);
+}
+
+.layer-line {
+  stroke: var(--paper-ink);
+  stroke-width: 1;
+  stroke-opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Doubles as the paper column's glow in space mode: same offset/opacity
+   shadow rect, now tinted with the bright cosmic --paper-ink instead of a
+   neutral dark tone, so it reads as a soft halo rather than a drop-shadow. */
+.paper-shadow {
+  fill: var(--paper-ink);
+  opacity: 0.12;
+}
+
+.fold-crease {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-dasharray: 2.5 2.5;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.guide-line {
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.guide-tick {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Small radial-gradient spotlight, centered on the active comparison
+   object's anchor point (percentages of the scene-art box, set from JS via
+   --anchor-x/--anchor-y custom properties). */
+.comparison-glow {
+  position: absolute;
+  left: var(--anchor-x, 50%);
+  top: var(--anchor-y, 50%);
+  width: 4.5rem;
+  height: 4.5rem;
+  background: radial-gradient(circle, var(--accent-yellow) 0%, transparent 70%);
+  opacity: 0.55;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: left 550ms ease, top 550ms ease;
+}
+
+/* For a distance-span object (e.g. a Sun-to-planet distance drawn across the
+   Solar System strip photo — see SceneObject.lineFromXPct/lineToXPct in
+   main.ts) the same element becomes a thin glowing bar between two
+   x-percentages instead of a radial point: --line-left is the span's left
+   edge, so `left` is used directly rather than the point variant's centred
+   translate(-50%, -50%). Kept visually restrained (thin, same opacity as the
+   point glow) so the strip's full set of planets stays readable underneath
+   it rather than getting cluttered. */
+.comparison-glow.is-line {
+  left: var(--line-left, 50%);
+  width: var(--line-width, 4.5rem);
+  height: 0.4rem;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent-yellow) 20%,
+    var(--accent-yellow) 80%,
+    transparent 100%
+  );
+  border-radius: 999px;
+  box-shadow: 0 0 0.75rem 0.1rem var(--accent-yellow);
+  transform: translateY(-50%);
+  transition: left 550ms ease, top 550ms ease, width 550ms ease;
+}
+
+/* The doodle-style arrow from the annotation card to the active comparison
+   object — lives in #world-svg but outside #camera, so it isn't panned or
+   zoomed with the paper; only its curve (a hand-bowed quadratic Bezier, not
+   a ruled straight line) is recomputed from JS each render. Solid and
+   round-capped rather than dashed, so it reads as sketched-with-a-marker
+   instead of a technical measurement line. */
+.leader-line {
+  stroke: var(--ink);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  opacity: 0.8;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.leader-arrowhead {
+  stroke: var(--ink);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.measure-line {
+  margin: 0;
+  max-width: 26rem;
+  font-size: 1.05rem;
+  font-style: italic;
+  text-align: center;
+  rotate: -0.4deg;
+}
+
+.measure-line strong {
+  color: var(--accent-2);
+  font-style: normal;
+}
+
+#height-label {
+  color: var(--accent-2);
+  font-weight: 700;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.fold-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.doodle-note {
+  min-height: 1.3em;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-style: italic;
+  opacity: 0.75;
+  rotate: -1.5deg;
+}
+
+.doodle-arrow {
+  width: 2.25rem;
+  height: 2.6rem;
+}
+
+.readout {
+  display: flex;
+  gap: 2.5rem;
+  margin: 0;
+}
+
+.readout-item {
+  text-align: center;
+}
+
+.readout dt {
+  display: inline-block;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.65;
+  rotate: -2deg;
+}
+
+.readout dd {
+  margin: 0.15rem 0 0;
+  color: var(--accent-2);
+  font-size: 1.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#fold-button {
+  position: relative;
+  padding: 0.85rem 2.25rem;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--accent-yellow);
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 300ms ease,
+    scale 100ms ease,
+    border-color 900ms ease,
+    color 900ms ease;
+}
+
+#fold-button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 6px;
+}
+
+#fold-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+#fold-button:hover:not(:disabled) {
+  background: var(--accent-yellow-dark);
+}
+
+#fold-button:active:not(:disabled) {
+  scale: 97%;
+}
+
+/* --- Physical-limit fork ------------------------------------------------ */
+
+.limit-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 26rem;
+  padding: 1.1rem 1.4rem;
+  border: 2px dashed var(--ink);
+  border-radius: 16px 8px 18px 10px;
+  background: var(--paper-white);
+  text-align: center;
+  rotate: -0.4deg;
+}
+
+.limit-prompt[hidden] {
+  display: none;
+}
+
+.limit-copy {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+/* Shared hand-drawn speech-bubble look — the physical-limit note and the
+   comparison-object callout are the same playful voice, just placed
+   differently. */
+.speech-bubble {
+  position: relative;
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 14px 16px 4px;
+  background: var(--accent-yellow);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-style: italic;
+  font-weight: 600;
+  transition: background-color 900ms ease, color 900ms ease, border-color 900ms ease;
+}
+
+.speech-bubble:empty {
+  display: none;
+}
+
+/* A small hand-drawn note, not a system alert — highlights the fun tension
+   between "the number's still small" and "the paper's already had enough". */
+.limit-bubble {
+  margin: 0 0 0.15rem;
+  rotate: -1deg;
+}
+
+.limit-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -0.55rem;
+  left: 1.6rem;
+  width: 0.9rem;
+  height: 0.65rem;
+  background: var(--accent-yellow);
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  rotate: -6deg;
+}
+
+/* --- Fold-90 ending ------------------------------------------------------ */
+
+/* Same hand-drawn voice as .limit-copy, not a new visual language — this is
+   a small transformation of the existing scene, not a takeover modal. */
+.ending-copy {
+  position: relative;
+  max-width: 30rem;
+  margin: -0.4rem auto 0;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* The ending paragraph is a new flex child of .scene (on top of the gap
+   .scene already gives every child) — without this the readout numbers end
+   up meaningfully further below the fold than any other fold, for no reason
+   a viewer would notice mattered. Tightening just the ended state's own
+   top margin keeps that extra scroll roughly in line with what the page
+   already asked for at fold 0, instead of adding to it. */
+.scene.is-ended {
+  margin-top: 1.3rem;
+}
+
+.ending-copy[hidden] {
+  display: none;
+}
+
+/* .scene-frame fade lives in the reduced-motion block below alongside every
+   other transition in this file; .is-ended only ever adds/removes the class
+   that triggers it. */
+
+/* .scene-frame is a plain positioning wrapper (NOT a flex container) around
+   the white scene panel and its annotation card — it used to be a flex row
+   with the card as a flex sibling of .world, which shrank .world by however
+   much space the card's own flex-basis + gap consumed. Removing that flex
+   row alone wasn't enough, though: .scene-frame is *itself* a flex item of
+   .scene, which uses align-items: center (not the default stretch). An
+   auto-width flex item under align-items: center still needs intrinsic
+   ("shrink-to-fit") sizing regardless of its own display type, and during
+   that pass .world's `width: min(100%, 52rem)` can't resolve its percentage
+   against a size that's still being computed — it silently collapsed to the
+   SVG's ~300px default replaced-element size instead, which is what was
+   actually shrinking the whole canvas. `align-self: stretch` below gives
+   .scene-frame a definite width up front (overriding .scene's centering
+   just for this one item), so .world's percentage resolves normally again,
+   the same way it did before .scene-frame existed. The annotation card sits
+   outside .world via absolute positioning (below) instead of via flex-item
+   space, so it can never compress the canvas either. */
+.scene-frame {
+  position: relative;
+  align-self: stretch;
+}
+
+/* The ending fades the comparison scene rather than hiding it — the cosmic
+   background and paper column stay visible and legible, just quieter, so
+   this reads as a wind-down instead of a jarring cutover. */
+.scene.is-ended .scene-frame {
+  opacity: 0.5;
+}
+
+/* A sticky-note-style annotation card just outside .world's right edge —
+   absolutely positioned against .scene-frame (which exactly matches
+   .world's box) via left: 100%, so it never subtracts its own width from
+   the canvas (that was the original flex-sibling bug — see .scene-frame's
+   comment above) and never overlaps the paper column, which lives near the
+   *left* edge of .world. Vertically centred so it reads as attached to the
+   whole scene rather than pinned to one corner. The leader-line arrow
+   (drawn in #world-svg, which overflows visibly) is what actually points
+   from here to the active object, wherever it sits in the current scene. */
+.comparison-bubble {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  z-index: 2;
+  width: 11rem;
+  max-width: 42%;
+  margin-left: 1.5rem;
+  rotate: -1deg;
+  translate: 0 -50%;
+  box-shadow: 2px 3px 0 rgb(0 0 0 / 12%);
+  transition:
+    opacity 300ms ease,
+    background-color 900ms ease,
+    color 900ms ease,
+    border-color 900ms ease,
+    box-shadow 900ms ease;
+}
+
+/* In space mode the bubble shifts from a warm-yellow note to a cool dark
+   surface with a bright accent outline and a tasteful glow, rather than the
+   loud full-accent-colour fill the rest of the page's token cascade would
+   otherwise give it. Same callout-card shape and hand-drawn rotate/shadow —
+   only the colours change. */
+[data-theme="space"] .comparison-bubble {
+  background: var(--paper-white);
+  color: var(--ink);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0.65rem rgb(179 139 255 / 35%), 2px 3px 0 rgb(0 0 0 / 25%);
+}
+
+.limit-actions {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.limit-actions button {
+  padding: 0.55rem 1.1rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.limit-actions button:hover {
+  background: var(--accent-yellow);
+}
+
+.limit-actions button:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* --- Animation, gated behind motion preference -------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  #camera {
+    transition: transform 550ms ease;
+  }
+
+  .scene-stage {
+    transition: transform 550ms ease;
+  }
+
+  .scene-frame {
+    transition: opacity 900ms ease;
+  }
+
+  /* A single small sparkle drifting up and fading once — CSS-only, no
+     animation library, and skipped entirely under reduced motion since it's
+     purely decorative. */
+  .ending-copy::after {
+    content: "✦";
+    position: absolute;
+    top: -0.4rem;
+    right: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0;
+    animation: ending-sparkle 2600ms ease-out 300ms 1;
+  }
+
+  @keyframes ending-sparkle {
+    0% {
+      opacity: 0;
+      translate: 0 0.3rem;
+    }
+
+    35% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      translate: 0 -0.6rem;
+    }
+  }
+
+  .paper-fill,
+  .paper-shadow {
+    transition:
+      width 550ms ease,
+      height 550ms ease,
+      x 550ms ease,
+      y 550ms ease,
+      stroke 900ms ease,
+      fill 900ms ease;
+  }
+
+  .fold-crease {
+    transition: x1 550ms ease, x2 550ms ease;
+  }
+
+  .guide-line {
+    transition: x1 550ms ease, x2 550ms ease, y2 550ms ease, stroke 900ms ease;
+  }
+
+  .leader-line {
+    transition: d 550ms ease, stroke 900ms ease;
+  }
+
+  .guide-tick {
+    transition:
+      x1 550ms ease,
+      x2 550ms ease,
+      y1 550ms ease,
+      y2 550ms ease,
+      stroke 900ms ease;
+  }
+
+  .ground-line,
+  .leader-arrowhead,
+  .layer-line {
+    transition: stroke 900ms ease;
+  }
+
+  #paper-flat,
+  #paper-stack,
+  #flat-right {
+    transform-box: fill-box;
+  }
+
+  /* A real hinge: the right half hinges over onto the left half from the
+     crease, foreshortening through the edge-on midpoint, rather than the
+     whole sheet flipping and swapping to a different element. */
+  @keyframes fold-hinge {
+    0% {
+      transform: scaleX(1) translateX(0);
+      opacity: 1;
+    }
+
+    55% {
+      transform: scaleX(0.08) translateX(-46%);
+      opacity: 0.7;
+    }
+
+    100% {
+      transform: scaleX(1) translateX(-100%);
+      opacity: 1;
+    }
+  }
+
+  #paper-flat.is-folding #flat-right {
+    animation: fold-hinge 420ms ease-in-out forwards;
+    transform-origin: 0% 50%;
+  }
+
+  @keyframes stack-reveal {
+    0% {
+      opacity: 0;
+      transform: scaleY(0.55);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
+  #paper-stack.is-revealing {
+    animation: stack-reveal 360ms ease-out forwards;
+    transform-origin: 50% 0%;
+  }
+
+  @keyframes stack-flex {
+    0% {
+      transform: scaleY(1);
+    }
+
+    45% {
+      transform: scaleY(1.12);
+    }
+
+    100% {
+      transform: scaleY(1);
+    }
+  }
+
+  #paper-stack.is-flexing {
+    animation: stack-flex 300ms ease-out;
+    transform-origin: 50% 0%;
+  }
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (width <= 480px) {
+  body {
+    padding: 1.5rem 1.1rem;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .world {
+    width: 100%;
+  }
+
+  /* There's no room to the right of .world at phone width, so the card
+     drops into normal flow below it instead of spilling off-screen. */
+  .comparison-bubble {
+    position: static;
+    top: auto;
+    left: auto;
+    width: auto;
+    max-width: 100%;
+    margin: 0.5rem auto 0;
+    translate: none;
+  }
+
+  .preset-grid {
+    grid-template-columns: 1fr;
+  }
 }

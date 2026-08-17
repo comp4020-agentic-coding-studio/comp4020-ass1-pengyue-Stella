@@ -3,21 +3,304 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>COMP4020 prototype</title>
+    <title>How Far Can You Fold a Piece of Paper?</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header>
       <nav aria-label="Primary">
-        <a href="./">Home</a>
+        <a class="skip-link" href="#scene">Skip to the fold</a>
       </nav>
     </header>
+
+    <svg class="visually-hidden" aria-hidden="true">
+      <defs>
+        <filter id="sketchy" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.015 0.04"
+            numOctaves="2"
+            seed="7"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="2.5"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+        <pattern id="paper-layers" width="40" height="1.6" patternUnits="userSpaceOnUse">
+          <line class="layer-line" x1="0" y1="1.5" x2="40" y2="1.5" />
+        </pattern>
+        <marker
+          id="leader-arrowhead"
+          markerWidth="11"
+          markerHeight="11"
+          refX="6.5"
+          refY="5.5"
+          orient="auto-start-reverse"
+          markerUnits="userSpaceOnUse"
+        >
+          <path class="leader-arrowhead" d="M1.5 1.8 L7.5 5.5 L1.8 9.2" fill="none" />
+        </marker>
+      </defs>
+    </svg>
+
+    <dialog id="paper-picker" aria-labelledby="picker-heading">
+      <h2 id="picker-heading">Pick a sheet to fold</h2>
+      <p class="picker-sub">real paper, doubled again and again</p>
+      <div class="preset-grid">
+        <button type="button" class="preset-card" data-preset="a4" autofocus>
+          <svg class="preset-icon" viewBox="0 0 40 40" aria-hidden="true">
+            <rect class="preset-shape" x="10" y="4" width="20" height="30" rx="1.5" />
+          </svg>
+          <span class="preset-label">A4</span>
+          <span class="preset-hint">the paper on your desk</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="newspaper">
+          <svg class="preset-icon" viewBox="0 0 40 40" aria-hidden="true">
+            <rect class="preset-shape" x="3" y="10" width="34" height="22" rx="1" />
+            <line class="preset-line" x1="10" y1="16" x2="24" y2="16" />
+            <line class="preset-line" x1="10" y1="21" x2="30" y2="21" />
+            <line class="preset-line" x1="10" y1="26" x2="20" y2="26" />
+          </svg>
+          <span class="preset-label">Newspaper sheet</span>
+          <span class="preset-hint">thin, wide broadsheet</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="large">
+          <svg class="preset-icon" viewBox="0 0 40 40" aria-hidden="true">
+            <rect class="preset-shape" x="6" y="2" width="28" height="36" rx="1.5" />
+          </svg>
+          <span class="preset-label">Large sheet</span>
+          <span class="preset-hint">poster-weight card</span>
+        </button>
+        <button type="button" class="preset-card" data-preset="giant">
+          <svg class="preset-icon" viewBox="0 0 40 40" aria-hidden="true">
+            <rect class="preset-shape" x="1" y="8" width="38" height="24" rx="1.5" />
+          </svg>
+          <span class="preset-label">Giant sheet</span>
+          <span class="preset-hint">a big banner roll</span>
+        </button>
+      </div>
+    </dialog>
+
     <main>
-      <h1>COMP4020 prototype</h1>
-      <p data-testid="intro">
-        Replace this with your prototype. This week's brief is on the course website;
-        <code>spec/README.md</code> explains how the checks in this repo relate to it.
+      <p class="kicker">an interactive explainer</p>
+
+      <h1>How Far Can You Fold a Piece of Paper?</h1>
+
+      <svg class="title-flourish" viewBox="0 0 220 14" aria-hidden="true">
+        <path class="doodle-line" d="M4 8 Q40 2 76 8 T148 6 T216 9" fill="none" />
+      </svg>
+
+      <p class="intro">
+        Pick a sheet, then fold it in half, again and again. Each fold
+        doubles its thickness — watch the world around it rescale as it
+        grows.
       </p>
+
+      <section id="scene" class="scene" aria-labelledby="fold-heading">
+        <h2 id="fold-heading" class="visually-hidden">Fold the paper</h2>
+
+        <div class="scene-toolbar">
+          <p class="scene-caption" id="scene-caption">a flat sheet, waiting to be folded</p>
+          <button type="button" id="change-sheet" class="text-button">change sheet</button>
+        </div>
+
+        <div class="scene-frame">
+          <div class="world">
+            <div class="scene-stage" id="scene-stage">
+              <img
+                class="scene-img"
+                data-scene="scene1"
+                src="./images/1.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene2"
+                src="./images/2.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene3"
+                src="./images/3.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene4"
+                src="./images/4.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene5"
+                src="./images/9.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene6"
+                src="./images/10.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene7"
+                src="./images/11.jpg"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene8"
+                src="./images/5.avif"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene9"
+                src="./images/7.jpg"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene10"
+                src="./images/6.webp"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene12"
+                src="./images/12.jpg"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene13"
+                src="./images/13.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="scene-img"
+                data-scene="scene11"
+                src="./images/8.jpg"
+                alt=""
+                aria-hidden="true"
+              />
+
+              <div id="comparison-glow" class="comparison-glow" aria-hidden="true"></div>
+            </div>
+
+            <svg
+              id="world-svg"
+              viewBox="0 0 480 340"
+              preserveAspectRatio="xMidYMax meet"
+              aria-hidden="true"
+            >
+              <path id="leader-line" class="leader-line" marker-end="url(#leader-arrowhead)" />
+
+              <g id="camera">
+                <line id="ground-line" class="ground-line" x1="-400" y1="0" x2="400" y2="0" />
+
+                <g id="paper-flat-zoom">
+                  <g id="paper-flat" class="paper-shape">
+                    <rect id="flat-shadow" class="paper-shadow" y="0" height="9" rx="1" />
+                    <rect id="flat-left" class="paper-fill flat-fill" y="0" height="9" rx="1" />
+                    <rect id="flat-right" class="paper-fill flat-fill" y="0" height="9" rx="1" />
+                    <line id="fold-crease" class="fold-crease" y1="0" y2="9" />
+                  </g>
+                </g>
+
+                <g id="paper-stack" class="paper-shape" hidden>
+                  <rect id="stack-shadow" class="paper-shadow" y="0" />
+                  <rect id="stack-outline" class="paper-fill" y="0" />
+                </g>
+
+                <line id="guide-line" class="guide-line" y1="0" y2="0" />
+                <line id="guide-tick" class="guide-tick" y1="0" y2="0" />
+              </g>
+            </svg>
+          </div>
+
+          <p id="comparison-bubble" class="comparison-bubble speech-bubble" aria-hidden="true"></p>
+        </div>
+
+        <p class="measure-line">
+          <span id="height-label">0.100 mm</span> tall —
+          <span id="comparison-caption">about as tall as <strong>a blade of grass</strong></span>
+        </p>
+
+        <p id="ending-copy" class="ending-copy" hidden>
+          Ninety folds. This little sheet has drifted past the Milky Way and kept
+          going — not sure it still counts as paper. It's out there now, small and
+          bright, looking for the next thing to be bigger than. ✦
+        </p>
+
+        <div class="fold-cta">
+          <span class="doodle-note" id="fold-note">go on, give it a fold</span>
+          <svg class="doodle-arrow" viewBox="0 0 40 46" aria-hidden="true">
+            <path class="doodle-line" d="M6 4 C 34 6, 10 26, 30 34" fill="none" />
+            <path class="doodle-line" d="M21 28 L30 34 L27 23" fill="none" />
+          </svg>
+
+          <button id="fold-button" type="button">Fold it</button>
+        </div>
+
+        <dl class="readout">
+          <div class="readout-item">
+            <dt>folds so far</dt>
+            <dd id="fold-count">0</dd>
+          </div>
+          <div class="readout-item">
+            <dt>thickness now</dt>
+            <dd id="thickness">0.100 mm</dd>
+          </div>
+        </dl>
+
+        <div id="limit-prompt" class="limit-prompt" hidden>
+          <p class="limit-bubble speech-bubble" id="limit-bubble"></p>
+          <p class="limit-copy">
+            Real paper starts fighting back around here. Past this point
+            we're estimating with
+            <a href="https://en.wikipedia.org/wiki/Britney_Gallivan" target="_blank" rel="noopener">
+              Britney Gallivan's folding equation</a>
+            for a sheet this size — not a lab measurement of this exact paper.
+            The exact practical limit isn't a universal rule: it depends on the
+            sheet's size, thickness, and material, and a much larger or thinner
+            sheet can go further than this one.
+          </p>
+          <div class="limit-actions">
+            <button type="button" id="stop-real">Stay realistic</button>
+            <button type="button" id="keep-going">Ignore physics and keep going</button>
+          </div>
+        </div>
+
+        <div id="stopped-panel" class="limit-prompt" hidden>
+          <p class="limit-copy">
+            Real paper's practical limit for this sheet is about here. Want to see it again?
+          </p>
+          <div class="limit-actions">
+            <button type="button" id="fold-fresh">Try again</button>
+            <button type="button" id="choose-different">Choose a different sheet</button>
+          </div>
+        </div>
+      </section>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

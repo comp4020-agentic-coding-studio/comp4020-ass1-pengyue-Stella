@@ -1,83 +1,63 @@
 # Process overview
 
-<!-- TEMPLATE: this file is a shape to fill in, not a form. Replace everything
-     in it with your own overview, and delete this comment — `pnpm
-     check:evidence` will remind you if it's still here. -->
-
-A reading-guide to how the work came together --- a map to your process, not an
-essay about it. Markers read this file and follow its citations; they don't
-trawl the repo for evidence you didn't point at, so if a moment mattered, cite
-it.
-
-This file is the shape; the course site's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
-is the requirement, and each brief adds its own word count and moment count.
-
 ## What I built
 
-One paragraph: the thing, and the idea behind it.
+I built an interactive explainer about the exponential growth of folded paper. Each fold doubles the paper's thickness, and the site turns that abstract number into a changing visual scale: the paper moves from everyday objects and buildings towards Earth, planetary distances and eventually the Milky Way. The main idea is the contrast between a very simple mathematical rule — keep doubling — and how quickly its consequences become difficult to imagine. The final interaction grew through repeated visual checking and several redesigns rather than from the first generated version.
 
 ## The moments that mattered
 
-Three or four for an assignment; fewer is fine for a weekly prototype. Keep the
-list short so each moment has room to do all four jobs:
+### 1. Rejecting the dashboard and changing the interaction model
 
-1. **what happened** --- the problem, or the thing the agent got wrong
-2. **what you did instead of the obvious thing** --- the call you made, and why
-   it beat the obvious one
-3. **how you knew it was right** --- the check you ran, the viewport you looked
-   at, what you read before accepting the diff
-4. **the citation** --- a commit or commit range, a `CLAUDE.md` change, a check
-   that went from red to green, a prompt paired with the commit it produced
+The first working version proved that the fold calculation and comparison logic worked, but it felt like a dashboard: click a button, increase a number, highlight another object. I did not want to polish that structure because the problem was the interaction itself. I stopped implementation and asked Claude to rethink it first:
 
-Jobs 2 and 3 are the ones the repo can't tell a reader on its own, so they're
-where the marks are. The strongest moments are the ones where a correction
-landed in the **harness** rather than in another prompt --- a rule added to
-`CLAUDE.md`, a check wired up, an attempt thrown away: re-prompting until it
-passes is the routine case, and changing what the agent works against is the
-skilled one.
+> The current version is not the right interaction model for this project.
+>
+> Do not implement changes yet.
 
-Cite each moment as a link whose text is the commit hash or range and whose
-target is this repo's commit or compare URL, so a reader clicks straight to the
-evidence:
+![Prompt showing the decision to reject the dashboard-style interaction](evidence/1-1.png)
 
-- one commit: [`a1b2c3d`](https://github.com/YOUR-ORG/YOUR-REPO/commit/a1b2c3d)
-- a range:
-  [`a1b2c3d...e4f5a6b`](https://github.com/YOUR-ORG/YOUR-REPO/compare/a1b2c3d...e4f5a6b)
+![Prompt describing the continuous illustrated world redesign](evidence/1-2.png)
 
-To pair a prompt with the commit it produced, quote the prompt (curated, not a
-full transcript) next to the citation:
+I rewrote the direction around a flat sheet that visibly folds and a continuous illustrated world that changes scale with it. The revised `PLAN.md` records what was kept and what had to be replaced. I checked the rendered interaction at desktop and phone sizes before continuing, focusing on whether the paper and comparison objects felt like parts of one scene rather than separate widgets.
 
-> the prompt, verbatim
+Evidence: [`PLAN.md`](./PLAN.md), [`development excerpt 1`](./evidence/claude-development-evidence.md#arc-1--dashboard-style-first-version--interaction--continuous-world-redesign)
 
-Screenshots are welcome where one carries the verification better than a
-sentence does. Commit the file to this repo and link it with a **relative**
-path, which is what makes it render on GitHub: `![alt text](docs/before.png)`.
-Images don't count towards the word count and don't replace the citation.
+### 2. Separating mathematical truth from the physical folding limit
 
-### A worked moment, for shape
+An early version treated six folds as a definite physical stopping point for A4 paper. The mathematics was correct — a 0.1 mm sheet becomes 6.4 mm after six folds and 12.8 mm after seven — but the explanation was too absolute. Instead of changing the doubling model to fit the interface, I kept the exact calculation and changed the claim:
 
-Delete this section along with the rest of the boilerplate --- it's here to show
-the four jobs in one paragraph, not to be imitated in content.
+> Do not state that a normal A4 sheet definitively "stops" at exactly 6 folds.
 
-> The date formatter kept coming back with `toLocaleDateString()` and no locale
-> argument, so the same build rendered differently on my machine and in CI. I'd
-> already re-prompted it twice, which fixed the line but not the habit, so the
-> third time I put the rule in `CLAUDE.md` instead
-> ([`3f9ac21`](https://github.com/YOUR-ORG/YOUR-REPO/commit/3f9ac21)) and added
-> a spec test that fails on a bare `toLocaleDateString`. That's what told me it
-> had actually taken: the test went red against the old code and green against
-> the new, and the next two features it wrote passed it without prompting
-> ([`3f9ac21...b7e0d14`](https://github.com/YOUR-ORG/YOUR-REPO/compare/3f9ac21...b7e0d14)).
+![Prompt correcting the overly absolute physical folding limit](evidence/2-1.png)
 
-## Before you ship
+The site now presents 6–7 folds as a practical warning region and explains that real limits depend on paper size, thickness, material and folding method. Different presets therefore do not inherit one universal maximum. The numerical doubling remained unchanged, while the warning was reframed as a contrast between a simple mathematical model and the much messier physical behaviour of real paper.
 
-`pnpm check:evidence` verifies your citations resolve to real commits, that the
-current reflection entry is in `reflections/`, and that your `CLAUDE.md` is
-there --- before a marker ever opens the file. It checks that your map is
-traceable, not that it is good: the marker judges whether your small,
-deliberately chosen set of moments shows real judgement and reflection. A green
-check is not a substitute for that curation.
+Evidence: [`development excerpt 2`](./evidence/claude-development-evidence.md#arc-2--physical-folding-limit--gallivan-based-practical-limit-framing)
 
-Images are deliberately not checked, because whether one renders is visible the
-moment you look. Open this file on GitHub and look at it before you ship.
+### 3. Fixing a visual result that contradicted the maths
+
+Later, I noticed consecutive folds could show numbers doubling while the paper column appeared exactly the same height. A successful build was not enough: the rendered page was communicating something false. I asked Claude to inspect the scaling and clamp logic rather than simply make the column taller.
+
+![Prompt identifying the frozen paper-height problem](evidence/3-1.png)
+
+![Prompt requiring consecutive folds to remain visually different](evidence/3-2.png)
+
+![Prompt extending the scaling correction into later astronomical scenes](evidence/3-3.png)
+
+![Prompt addressing the final late-stage camera and annotation problems](evidence/3-4.png)
+
+The investigation found that the existing fit calculation eventually collapsed the paper to a constant on-screen height. The scaling model was then changed in stages: the paper first grows normally, the reference scene can shrink when the paper reaches the available height, and at very large scales the camera can pull back further. Later browser verification also exposed an SVG rendering limit that could not have been discovered by looking only at the source code. The corrected behaviour was checked with Playwright at 1920×1080 and 390×844, including consecutive folds in the later scenes.
+
+Evidence: [`development excerpt 3`](./evidence/claude-development-evidence.md#arc-3--visual-scale-stops-changing-even-though-numeric-thickness-keeps-increasing--scaling--camera-redesign)
+
+### 4. Removing a feature that worked
+
+I also asked Claude to add optional background music. The implementation worked: it looped, respected autoplay restrictions and had a theme-aware control. After seeing it as part of the complete explainer, however, I decided it added another system without strengthening the folding idea.
+
+> coulde you please delect the music button in the website, I do not want to add music anymore
+
+![Prompt asking for the completed music feature to be removed](evidence/4-1.png)
+
+I chose deletion rather than continuing to polish it. The audio element, control, styles and state were removed, while unrelated folding and scaling code stayed unchanged. `pnpm check` still passed afterwards. This made the final project more focused and reminded me that finishing a feature was not, by itself, a reason to keep it.
+
+Evidence: [`development excerpt 5`](./evidence/claude-development-evidence.md#arc-5--music-feature-added-then-deliberately-removed)
