@@ -4,6 +4,12 @@
 
 I built an interactive explainer about the exponential growth of folded paper. Each fold doubles the paper's thickness, and the site turns that abstract number into a changing visual scale: the paper moves from everyday objects and buildings towards Earth, planetary distances and eventually the Milky Way. The main idea is the contrast between a very simple mathematical rule — keep doubling — and how quickly its consequences become difficult to imagine. The final interaction grew through repeated visual checking and several redesigns rather than from the first generated version.
 
+Current repository state containing the completed Assignment 1 work:
+[`058ef10`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-pengyue-Stella/commit/058ef10)
+
+Repository state containing the implemented result:
+[`058ef10`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-pengyue-Stella/commit/058ef10)
+
 ## The moments that mattered
 
 ### 1. Rejecting the dashboard and changing the interaction model
